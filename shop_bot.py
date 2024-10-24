@@ -1,4 +1,5 @@
 import os
+from telegram import ReplyKeyboardMarkup
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
 # Функция для стартового экрана с кнопками
@@ -7,16 +8,19 @@ def start(update, context):
     reply_markup = ReplyKeyboardMarkup(keyboard, one_time_keyboard=True, resize_keyboard=True)
     update.message.reply_text("Привет! Чем могу помочь?", reply_markup=reply_markup)
 
-# Обработка кнопок
+# Обработка кнопки Каталог
 def catalog(update, context):
     update.message.reply_text("Вы открыли каталог товаров.")
 
+# Обработка кнопки Вопрос-ответ
 def faq(update, context):
     update.message.reply_text("Часто задаваемые вопросы:\n1. Как сделать заказ?\n2. Какова стоимость доставки?")
 
+# Обработка кнопки Консультация
 def consultation(update, context):
     update.message.reply_text("Для консультации напишите нашему менеджеру @manager_username.")
 
+# Функция обработки сообщений
 def handle_message(update, context):
     text = update.message.text
     if text == "Каталог":
@@ -28,11 +32,18 @@ def handle_message(update, context):
     else:
         update.message.reply_text("Пожалуйста, выберите один из вариантов.")
 
+# Основная функция
 def main():
-    # Получаем токен и порт из переменных окружения
+    # Получаем токен из переменной окружения
     TOKEN = os.environ.get("TELEGRAM_TOKEN")
-    PORT = int(os.environ.get("PORT", 8443))
+    
+    if not TOKEN:
+        raise ValueError("TELEGRAM_TOKEN is missing! Make sure you set it in the environment variables.")
 
+    # Получаем порт из переменной окружения
+    PORT = int(os.environ.get("PORT", 8443))
+    
+    # Инициализируем Updater с нашим токеном
     updater = Updater(TOKEN, use_context=True)
     dp = updater.dispatcher
 
@@ -46,8 +57,11 @@ def main():
         port=PORT,
         url_path=TOKEN
     )
+    
+    # Устанавливаем вебхук с использованием хоста Render
     updater.bot.set_webhook(f"https://{os.environ.get('RENDER_EXTERNAL_HOSTNAME')}/{TOKEN}")
 
+    # Запуск бота
     updater.idle()
 
 if __name__ == '__main__':
