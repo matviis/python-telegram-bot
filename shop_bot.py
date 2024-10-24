@@ -34,20 +34,15 @@ def handle_message(update, context):
 
 # Основная функция
 def main():
-    # Получаем токен из переменной окружения
     TOKEN = os.environ.get("TELEGRAM_TOKEN")
     
     if not TOKEN:
         raise ValueError("TELEGRAM_TOKEN is missing! Make sure you set it in the environment variables.")
-
-    # Получаем порт из переменной окружения
-    PORT = int(os.environ.get("PORT", 8443))
     
-    # Инициализируем Updater с нашим токеном
+    PORT = int(os.environ.get("PORT", 8443))
     updater = Updater(TOKEN, use_context=True)
     dp = updater.dispatcher
 
-    # Обработчики команд
     dp.add_handler(CommandHandler("start", start))
     dp.add_handler(MessageHandler(Filters.text, handle_message))
 
@@ -58,10 +53,9 @@ def main():
         url_path=TOKEN
     )
     
-    # Устанавливаем вебхук с использованием хоста Render
+    # Устанавливаем вебхук
     updater.bot.set_webhook(f"https://{os.environ.get('RENDER_EXTERNAL_HOSTNAME')}/{TOKEN}")
 
-    # Запуск бота
     updater.idle()
 
 if __name__ == '__main__':
